@@ -151,7 +151,7 @@ ipcMain.handle('select-folder', async () => {
     }
 });
 
-ipcMain.handle('get-default-path', () => path.join(os.homedir(), 'MinecraftServers'));
+ipcMain.handle('get-default-path', () => path.join(os.homedir(), 'Downloads'));
 
 ipcMain.handle('get-versions', async (event, serverType) => {
     try {
