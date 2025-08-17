@@ -3,6 +3,10 @@ on:
   push:
     tags:
       - 'v*' # v1.0.0, v1.0.1 などのタグがプッシュされた時に実行
+
+permissions:
+  contents: write # リリース作成とファイルアップロードに必要
+  
 jobs:
   build:
     name: Build and Release
@@ -36,19 +40,19 @@ jobs:
         
       - name: Build Application (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: npm run build:linux
+        run: npm run build:linux -- --publish=never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Build Application (Windows)
         if: matrix.os == 'windows-latest'
-        run: npm run build:win
+        run: npm run build:win -- --publish=never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Build Application (macOS)
         if: matrix.os == 'macos-latest'
-        run: npm run build:mac
+        run: npm run build:mac -- --publish=never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
