@@ -116,6 +116,10 @@
           "path": "/Applications"
         }
       ]
+    },
+    "generateUpdatesFilesForAllChannels": true,
+    "releaseInfo": {
+      "releaseNotesFile": "CHANGELOG.md"
     }
   },
   "homepage": "https://github.com/kogumania/MC-server",
