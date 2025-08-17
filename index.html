@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Server Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .minecraft-icon {
+            width: 50px;
+            height: 50px;
+            background: #8B4513;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        /* アップデート機能用のスタイル */
+        .app-version {
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 8px;
+            margin-left: 10px;
+        }
+
+        .update-info-card {
+            margin-bottom: 15px;
+        }
+
+        .update-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .update-actions button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .update-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .update-status.checking {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .update-status.available {
+            background: #d1ecf1;
+            border-left: 4px solid #0dcaf0;
+        }
+
+        .update-status.downloading {
+            background: #e2e3e5;
+            border-left: 4px solid #6c757d;
+        }
+
+        .update-status.ready {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .update-status.error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .version-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .changelog-preview {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .server-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .server-type {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .server-type:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .server-type.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .server-type h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .server-type p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .memory-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .memory-unit-toggle {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .memory-unit-toggle:hover {
+            background: #5a6fd8;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .folder-selection {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .browse-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .browse-btn:hover {
+            background: #5a6268;
+        }
+
+        .java-info {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .java-info.warning {
+            border-left-color: #ffc107;
+            background: #fff8e1;
+        }
+
+        .java-info.error {
+            border-left-color: #dc3545;
+            background: #ffebee;
+        }
+
+        .create-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .create-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #c62828;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #2e7d32;
+            display: none;
+        }
+
+        .version-select {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <div class="minecraft-icon">🎮</div>
+                Minecraft Server Creator
+                <div class="app-version" id="appVersion">v1.0.0</div>
+            </h1>
+        </div>
+
+        <!-- アプリケーションの更新セクション -->
+        <div class="section" id="appUpdateSection">
+            <div class="section-title">アプリケーションの更新</div>
+            <div class="update-info-card" id="appUpdateInfo" style="display: none;">
+                <div class="java-info" id="appUpdateCard">
+                    <strong id="appUpdateText"></strong>
+                    <div class="update-actions" style="margin-top: 10px;">
+                        <button id="downloadUpdateBtn" class="browse-btn" style="margin-right: 10px;">ダウンロード</button>
+                        <button id="installUpdateBtn" class="create-btn" style="display: none;">インストール</button>
+                        <button id="viewReleaseNotesBtn" class="browse-btn">リリースノート</button>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <button id="checkAppUpdateBtn" class="browse-btn">アップデートをチェック</button>
+                <button id="aboutBtn" class="browse-btn" style="margin-left: 10px;">アプリについて</button>
+            </div>
+            
+            <!-- アップデート進行状況 -->
+            <div class="progress-container" id="updateProgressContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="updateProgressFill"></div>
+                </div>
+                <div class="progress-text" id="updateProgressText">アップデートを確認中...</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">サーバー名</div>
+            <div class="input-group">
+                <input type="text" id="serverName" class="input-field" placeholder="MyMinecraftServer" value="MyMinecraftServer">
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">保存先フォルダ</div>
+            <div class="folder-selection">
+                <input type="text" id="savePath" class="input-field" placeholder="保存先を選択してください" readonly>
+                <button id="browseFolder" class="browse-btn">参照</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">サーバータイプ</div>
+            <div class="server-types">
+                <div class="server-type selected" data-type="vanilla">
+                    <h3>Vanilla</h3>
+                    <p>公式サーバー</p>
+                </div>
+                <div class="server-type" data-type="paper">
+                    <h3>Paper</h3>
+                    <p>高性能サーバー</p>
+                </div>
+                <div class="server-type" data-type="spigot">
+                    <h3>Spigot</h3>
+                    <p>プラグイン対応</p>
+                </div>
+                <div class="server-type" data-type="fabric">
+                    <h3>Fabric</h3>
+                    <p>軽量MOD対応</p>
+                </div>
+                <div class="server-type" data-type="forge">
+                    <h3>Forge</h3>
+                    <p>MOD対応</p>
+                </div>
+                <div class="server-type" data-type="neoforge">
+                    <h3>NeoForge</h3>
+                    <p>新世代Forge</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">バージョン</div>
+            <div class="input-group">
+                <select id="versionSelect" class="input-field version-select">
+                    <option value="">バージョンを読み込み中...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="java-info" id="javaInfo">
+            <strong>Java情報を確認中...</strong>
+        </div>
+
+        <div class="section">
+            <div class="section-title">メモリ設定</div>
+            <div class="memory-settings">
+                <div class="input-group">
+                    <label class="input-label">最小メモリ</label>
+                    <input type="number" id="minMemory" class="input-field" value="1024" min="512">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">最大メモリ</label>
+                    <input type="number" id="maxMemory" class="input-field" value="4096" min="512">
+                </div>
+                <button id="memoryUnit" class="memory-unit-toggle">MB</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="autoDownload" checked>
+                    <label for="autoDownload">サーバーファイルを自動ダウンロード</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="autoEula">
+                    <label for="autoEula">Minecraft EULA に自動で同意する</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="autoUpdate">
+                    <label for="autoUpdate">サーバーの最新バージョンが公開時に自動更新する</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="updateSection" style="display: none;">
+            <div class="section-title">サーバー更新</div>
+            <div class="input-group">
+                <button id="checkUpdateBtn" class="browse-btn">更新をチェック</button>
+            </div>
+            <div id="updateInfo" style="display: none;">
+                <div class="java-info" id="updateInfoCard">
+                    <strong id="updateInfoText"></strong>
+                    <br>
+                    <button id="updateServerBtn" class="create-btn" style="margin-top: 10px;">サーバーを更新</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="createServer" class="create-btn">
+            🚀 サーバーを作成
+        </button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">準備中...</div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+    </div>
+
+    <script>
+        // UI状態管理
+        let currentServerType = 'vanilla';
+        let currentMemoryUnit = 'MB';
+        let isCreating = false;
+        let currentUpdateInfo = null;
+
+        // アプリアップデート関連の変数
+        let currentAppUpdateInfo = null;
+        let releaseNotesUrl = null;
+
+        // DOM要素の取得
+        const serverTypes = document.querySelectorAll('.server-type');
+        const versionSelect = document.getElementById('versionSelect');
+        const memoryUnit = document.getElementById('memoryUnit');
+        const minMemory = document.getElementById('minMemory');
+        const maxMemory = document.getElementById('maxMemory');
+        const createBtn = document.getElementById('createServer');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const javaInfo = document.getElementById('javaInfo');
+        const savePath = document.getElementById('savePath');
+        const browseFolder = document.getElementById('browseFolder');
+        const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+        const updateServerBtn = document.getElementById('updateServerBtn');
+        const updateSection = document.getElementById('updateSection');
+        const updateInfo = document.getElementById('updateInfo');
+        const updateInfoCard = document.getElementById('updateInfoCard');
+        const updateInfoText = document.getElementById('updateInfoText');
+
+        // アプリアップデート用DOM要素
+        const appVersion = document.getElementById('appVersion');
+        const checkAppUpdateBtn = document.getElementById('checkAppUpdateBtn');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const appUpdateInfo = document.getElementById('appUpdateInfo');
+        const appUpdateCard = document.getElementById('appUpdateCard');
+        const appUpdateText = document.getElementById('appUpdateText');
+        const downloadUpdateBtn = document.getElementById('downloadUpdateBtn');
+        const installUpdateBtn = document.getElementById('installUpdateBtn');
+        const viewReleaseNotesBtn = document.getElementById('viewReleaseNotesBtn');
+        const updateProgressContainer = document.getElementById('updateProgressContainer');
+        const updateProgressFill = document.getElementById('updateProgressFill');
+        const updateProgressText = document.getElementById('updateProgressText');
+
+        // サーバータイプ選択
+        serverTypes.forEach(type => {
+            type.addEventListener('click', () => {
+                serverTypes.forEach(t => t.classList.remove('selected'));
+                type.classList.add('selected');
+                currentServerType = type.dataset.type;
+                loadVersions();
+            });
+        });
+
+        // メモリ単位切り替え
+        memoryUnit.addEventListener('click', () => {
+            if (currentMemoryUnit === 'MB') {
+                currentMemoryUnit = 'GB';
+                memoryUnit.textContent = 'GB';
+                minMemory.value = Math.round(minMemory.value / 1024 * 10) / 10;
+                maxMemory.value = Math.round(maxMemory.value / 1024 * 10) / 10;
+                minMemory.step = '0.1';
+                maxMemory.step = '0.1';
+            } else {
+                currentMemoryUnit = 'MB';
+                memoryUnit.textContent = 'MB';
+                minMemory.value = Math.round(minMemory.value * 1024);
+                maxMemory.value = Math.round(maxMemory.value * 1024);
+                minMemory.step = '1';
+                maxMemory.step = '1';
+            }
+        });
+
+        // フォルダ選択
+        browseFolder.addEventListener('click', async () => {
+            try {
+                const result = await window.electronAPI.selectFolder();
+                if (result.success) {
+                    savePath.value = result.path;
+                    saveSettings();
+                    
+                    // 選択したフォルダに既存のサーバーがあるかチェック
+                    await checkExistingServer(result.path);
+                }
+            } catch (error) {
+                showError('フォルダ選択中にエラーが発生しました: ' + error.message);
+            }
+        });
+
+        // 既存サーバーのチェック
+        async function checkExistingServer(folderPath) {
+            try {
+                const updateCheckResult = await window.electronAPI.checkServerUpdates(folderPath);
+                if (updateCheckResult.hasUpdate) {
+                    updateSection.style.display = 'block';
+                    showUpdateInfo(updateCheckResult);
+                } else if (!updateCheckResult.error) {
+                    updateSection.style.display = 'block';
+                    updateInfo.style.display = 'none';
+                } else {
+                    updateSection.style.display = 'none';
+                }
+            } catch (error) {
+                updateSection.style.display = 'none';
+            }
+        }
+
+        // 更新情報表示
+        function showUpdateInfo(updateCheckResult) {
+            currentUpdateInfo = updateCheckResult;
+            updateInfoText.textContent = `新しいバージョンが利用可能です: ${updateCheckResult.currentVersion} → ${updateCheckResult.latestVersion}`;
+            updateInfoCard.className = 'java-info warning';
+            updateInfo.style.display = 'block';
+        }
+
+        // 更新チェック
+        checkUpdateBtn.addEventListener('click', async () => {
+            if (!savePath.value) {
+                showError('保存先フォルダを選択してください');
+                return;
+            }
+
+            try {
+                checkUpdateBtn.textContent = 'チェック中...';
+                checkUpdateBtn.disabled = true;
+                
+                const updateCheckResult = await window.electronAPI.checkServerUpdates(savePath.value);
+                
+                if (updateCheckResult.hasUpdate) {
+                    showUpdateInfo(updateCheckResult);
+                    showSuccess('新しいバージョンが見つかりました！');
+                } else if (updateCheckResult.error) {
+                    showError(updateCheckResult.error);
+                } else {
+                    updateInfo.style.display = 'none';
+                    showSuccess('サーバーは最新バージョンです');
+                }
+            } catch (error) {
+                showError('更新チェック中にエラーが発生しました: ' + error.message);
+            } finally {
+                checkUpdateBtn.textContent = '更新をチェック';
+                checkUpdateBtn.disabled = false;
+            }
+        });
+
+        // サーバー更新実行
+        updateServerBtn.addEventListener('click', async () => {
+            if (!currentUpdateInfo) return;
+
+            try {
+                updateServerBtn.textContent = '更新中...';
+                updateServerBtn.disabled = true;
+                progressContainer.style.display = 'block';
+                errorMessage.style.display = 'none';
+
+                const updateConfig = {
+                    targetVersion: currentUpdateInfo.latestVersion
+                };
+
+                const result = await window.electronAPI.updateServer(savePath.value, updateConfig, (progress) => {
+                    updateProgress(progress.percent, progress.message);
+                });
+
+                if (result.success) {
+                    showSuccess(result.message);
+                    updateInfo.style.display = 'none';
+                    currentUpdateInfo = null;
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                showError('サーバー更新中にエラーが発生しました: ' + error.message);
+            } finally {
+                updateServerBtn.textContent = 'サーバーを更新';
+                updateServerBtn.disabled = false;
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        // アプリアップデート機能のイベントリスナー設定
+        function setupUpdateListeners() {
+            // 手動アップデートチェック
+            checkAppUpdateBtn.addEventListener('click', async () => {
+                await checkForAppUpdates();
+            });
+            
+            // アプリについてダイアログ
+            aboutBtn.addEventListener('click', async () => {
+                try {
+                    await window.electronAPI.showAboutDialog();
+                } catch (error) {
+                    showError('アプリ情報の表示に失敗しました: ' + error.message);
+                }
+            });
+            
+            // アップデートダウンロード
+            downloadUpdateBtn.addEventListener('click', async () => {
+                if (currentAppUpdateInfo) {
+                    showUpdateProgress(0, 'アップデートをダウンロード中...');
+                    downloadUpdateBtn.disabled = true;
+                }
+            });
+            
+            // アップデートインストール
+            installUpdateBtn.addEventListener('click', async () => {
+                try {
+                    const result = await window.electronAPI.installUpdate();
+                    if (!result.success) {
+                        showError('アップデートのインストールに失敗しました: ' + result.error);
+                    }
+                } catch (error) {
+                    showError('アップデートのインストールに失敗しました: ' + error.message);
+                }
+            });
+            
+            // リリースノート表示
+            viewReleaseNotesBtn.addEventListener('click', async () => {
+                if (releaseNotesUrl) {
+                    try {
+                        await window.electronAPI.openReleaseNotes(releaseNotesUrl);
+                    } catch (error) {
+                        showError('リリースノートの表示に失敗しました: ' + error.message);
+                    }
+                }
+            });
+            
+            // 自動アップデート通知のリスナー
+            if (window.electronAPI.onUpdateChecking) {
+                window.electronAPI.onUpdateChecking(() => {
+                    showUpdateStatus('checking', 'アップデートを確認中...');
+                });
+            }
+            
+            if (window.electronAPI.onUpdateAvailable) {
+                window.electronAPI.onUpdateAvailable((updateInfo) => {
+                    handleUpdateAvailable(updateInfo);
+                });
+            }
+            
+            if (window.electronAPI.onUpdateNotAvailable) {
+                window.electronAPI.onUpdateNotAvailable(() => {
+                    showUpdateStatus('up-to-date', '最新版です');
+                    setTimeout(() => {
+                        appUpdateInfo.style.display = 'none';
+                    }, 3000);
+                });
+            }
+            
+            if (window.electronAPI.onUpdateProgress) {
+                window.electronAPI.onUpdateProgress((progress) => {
+                    showUpdateProgress(progress.percent, progress.message);
+                });
+            }
+            
+            if (window.electronAPI.onUpdateDownloaded) {
+                window.electronAPI.onUpdateDownloaded((updateInfo) => {
+                    handleUpdateDownloaded(updateInfo);
+                });
+            }
+            
+            if (window.electronAPI.onUpdateError) {
+                window.electronAPI.onUpdateError((error) => {
+                    showUpdateStatus('error', `アップデートエラー: ${error}`);
+                    checkAppUpdateBtn.disabled = false;
+                    downloadUpdateBtn.disabled = false;
+                });
+            }
+        }
+
+        // 手動アップデートチェック
+        async function checkForAppUpdates() {
+            try {
+                checkAppUpdateBtn.disabled = true;
+                checkAppUpdateBtn.textContent = 'チェック中...';
+                
+                showUpdateStatus('checking', 'アップデートを確認中...');
+                
+                const result = await window.electronAPI.checkForUpdates();
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                showUpdateStatus('error', 'アップデートの確認に失敗しました: ' + error.message);
+                console.error('アップデートチェックエラー:', error);
+            } finally {
+                checkAppUpdateBtn.disabled = false;
+                checkAppUpdateBtn.textContent = 'アップデートをチェック';
+            }
+        }
+
+        // アップデート利用可能時の処理
+        function handleUpdateAvailable(updateInfo) {
+            currentAppUpdateInfo = updateInfo;
+            releaseNotesUrl = `https://github.com/yourusername/minecraft-server-creator/releases/tag/v${updateInfo.version}`;
+            
+            showUpdateStatus('available', `新しいバージョン ${updateInfo.version} が利用可能です`);
+            
+            appUpdateText.innerHTML = `
+                <strong>🚀 新しいバージョンが利用可能です！</strong><br>
+                現在: v${appVersion.textContent.replace('v', '')} → 最新: v${updateInfo.version}<br>
+                リリース日: ${new Date(updateInfo.releaseDate).toLocaleDateString('ja-JP')}
+            `;
+            
+            if (updateInfo.releaseNotes) {
+                const changelogDiv = document.createElement('div');
+                changelogDiv.className = 'changelog-preview';
+                changelogDiv.innerHTML = `<strong>更新内容:</strong><br>${updateInfo.releaseNotes.replace(/\n/g, '<br>')}`;
+                appUpdateText.appendChild(changelogDiv);
+            }
+            
+            appUpdateCard.className = 'java-info';
+            downloadUpdateBtn.style.display = 'inline-block';
+            installUpdateBtn.style.display = 'none';
+            viewReleaseNotesBtn.style.display = 'inline-block';
+            
+            showSuccess('新しいバージョンが利用可能です！');
+        }
+
+        // アップデートダウンロード完了時の処理
+        function handleUpdateDownloaded(updateInfo) {
+            showUpdateStatus('ready', `バージョン ${updateInfo.version} のダウンロードが完了しました`);
+            
+            appUpdateText.innerHTML = `
+                <strong>✅ アップデートの準備ができました！</strong><br>
+                バージョン ${updateInfo.version} をインストールする準備ができました。<br>
+                インストールするにはアプリケーションを再起動します。
+            `;
+            
+            appUpdateCard.className = 'java-info';
+            downloadUpdateBtn.style.display = 'none';
+            installUpdateBtn.style.display = 'inline-block';
+            
+            updateProgressContainer.style.display = 'none';
+            
+            showSuccess('アップデートのダウンロードが完了しました！');
+        }
+
+        // アップデート状態表示
+        function showUpdateStatus(status, message) {
+            appUpdateInfo.style.display = 'block';
+            
+            const statusClasses = {
+                'checking': 'java-info warning',
+                'available': 'java-info warning',
+                'downloading': 'java-info',
+                'ready': 'java-info',
+                'up-to-date': 'java-info',
+                'error': 'java-info error'
+            };
+            
+            appUpdateCard.className = statusClasses[status] || 'java-info';
+            
+            if (status === 'up-to-date') {
+                appUpdateText.innerHTML = `<strong>✅ ${message}</strong>`;
+                downloadUpdateBtn.style.display = 'none';
+                installUpdateBtn.style.display = 'none';
+                viewReleaseNotesBtn.style.display = 'none';
+            } else if (status === 'error') {
+                appUpdateText.innerHTML = `<strong>❌ ${message}</strong>`;
+                downloadUpdateBtn.style.display = 'none';
+                installUpdateBtn.style.display = 'none';
+                viewReleaseNotesBtn.style.display = 'none';
+            } else {
+                appUpdateText.innerHTML = `<strong>${message}</strong>`;
+            }
+        }
+
+        // アップデート進行状況表示
+        function showUpdateProgress(percent, message) {
+            updateProgressContainer.style.display = 'block';
+            updateProgressFill.style.width = percent + '%';
+            updateProgressText.textContent = message;
+        }
+
+        // バージョン読み込み
+        async function loadVersions() {
+            versionSelect.innerHTML = '<option value="">バージョンを読み込み中...</option>';
+            
+            try {
+                const versions = await window.electronAPI.getVersions(currentServerType);
+                versionSelect.innerHTML = '';
+                
+                versions.forEach(version => {
+                    const option = document.createElement('option');
+                    option.value = version;
+                    option.textContent = version;
+                    versionSelect.appendChild(option);
+                });
+
+                if (versions.length > 0) {
+                    versionSelect.value = versions[0]; // 最新バージョンを選択
+                    checkJavaCompatibility();
+                }
+            } catch (error) {
+                versionSelect.innerHTML = '<option value="">バージョンの読み込みに失敗しました</option>';
+                showError('バージョンの読み込み中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        // Java互換性チェック
+        async function checkJavaCompatibility() {
+            try {
+                const javaCheck = await window.electronAPI.checkJava(versionSelect.value);
+                updateJavaInfo(javaCheck);
+            } catch (error) {
+                javaInfo.innerHTML = '<strong>Java情報の取得に失敗しました</strong>';
+                javaInfo.className = 'java-info error';
+            }
+        }
+
+        // Java情報更新
+        function updateJavaInfo(javaCheck) {
+            if (javaCheck.installed) {
+                if (javaCheck.compatible) {
+                    javaInfo.innerHTML = `<strong>✅ Java ${javaCheck.installedVersion} が検出されました</strong><br>このバージョンに対応しています (推奨: Java ${javaCheck.recommendedVersion})`;
+                    javaInfo.className = 'java-info';
+                } else {
+                    javaInfo.innerHTML = `<strong>⚠️ Java ${javaCheck.installedVersion} が検出されました</strong><br>推奨バージョン: Java ${javaCheck.recommendedVersion}`;
+                    javaInfo.className = 'java-info warning';
+                }
+            } else {
+                javaInfo.innerHTML = `<strong>❌ Javaが見つかりません</strong><br>Java ${javaCheck.recommendedVersion} のインストールが必要です`;
+                javaInfo.className = 'java-info error';
+            }
+        }
+
+        // 設定保存
+        function saveSettings() {
+            if (typeof(Storage) !== "undefined") {
+                const settings = {
+                    serverName: document.getElementById('serverName').value,
+                    savePath: savePath.value,
+                    serverType: currentServerType,
+                    version: versionSelect.value,
+                    minMemory: minMemory.value,
+                    maxMemory: maxMemory.value,
+                    memoryUnit: currentMemoryUnit,
+                    autoDownload: document.getElementById('autoDownload').checked,
+                    autoEula: document.getElementById('autoEula').checked,
+                    autoUpdate: document.getElementById('autoUpdate').checked
+                };
+                
+                // In-memory storage instead of localStorage
+                window.appSettings = settings;
+            }
+        }
+
+        // 設定読み込み
+        function loadSettings() {
+            if (window.appSettings) {
+                const settings = window.appSettings;
+                document.getElementById('serverName').value = settings.serverName || 'MyMinecraftServer';
+                savePath.value = settings.savePath || '';
+                
+                if (settings.serverType) {
+                    serverTypes.forEach(type => {
+                        if (type.dataset.type === settings.serverType) {
+                            serverTypes.forEach(t => t.classList.remove('selected'));
+                            type.classList.add('selected');
+                            currentServerType = settings.serverType;
+                        }
+                    });
+                }
+                
+                minMemory.value = settings.minMemory || 1024;
+                maxMemory.value = settings.maxMemory || 4096;
+                
+                if (settings.memoryUnit === 'GB') {
+                    memoryUnit.click();
+                }
+                
+                document.getElementById('autoDownload').checked = settings.autoDownload !== false;
+                document.getElementById('autoEula').checked = settings.autoEula || false;
+                document.getElementById('autoUpdate').checked = settings.autoUpdate || false;
+            }
+        }
+
+        // エラー表示
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 成功表示
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 進行更新
+        function updateProgress(percent, message) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = message;
+        }
+
+        // バリデーション
+        function validateInputs() {
+            const serverName = document.getElementById('serverName').value.trim();
+            const savePathValue = savePath.value.trim();
+            const version = versionSelect.value;
+            const min = parseFloat(minMemory.value);
+            const max = parseFloat(maxMemory.value);
+
+            if (!serverName) {
+                throw new Error('サーバー名を入力してください');
+            }
+
+            if (!savePathValue) {
+                throw new Error('保存先フォルダを選択してください');
+            }
+
+            if (!version) {
+                throw new Error('バージョンを選択してください');
+            }
+
+            if (min >= max) {
+                throw new Error('最大メモリは最小メモリより大きく設定してください');
+            }
+
+            if (min < 512 || (currentMemoryUnit === 'GB' && min < 0.5)) {
+                throw new Error('最小メモリは512MB以上に設定してください');
+            }
+        }
+
+        // サーバー作成
+        createBtn.addEventListener('click', async () => {
+            if (isCreating) return;
+
+            try {
+                validateInputs();
+                
+                isCreating = true;
+                createBtn.disabled = true;
+                createBtn.textContent = '作成中...';
+                progressContainer.style.display = 'block';
+                errorMessage.style.display = 'none';
+
+                saveSettings();
+
+                const config = {
+                    serverName: document.getElementById('serverName').value.trim(),
+                    savePath: savePath.value.trim(),
+                    serverType: currentServerType,
+                    version: versionSelect.value,
+                    minMemory: currentMemoryUnit === 'MB' ? minMemory.value : Math.round(minMemory.value * 1024),
+                    maxMemory: currentMemoryUnit === 'MB' ? maxMemory.value : Math.round(maxMemory.value * 1024),
+                    autoDownload: document.getElementById('autoDownload').checked,
+                    autoEula: document.getElementById('autoEula').checked,
+                    autoUpdate: document.getElementById('autoUpdate').checked
+                };
+
+                updateProgress(10, 'サーバー設定を準備中...');
+
+                const result = await window.electronAPI.createServer(config, (progress) => {
+                    updateProgress(progress.percent, progress.message);
+                });
+
+                if (result.success) {
+                    updateProgress(100, '完了！');
+                    showSuccess('サーバーが正常に作成されました！作成されたフォルダ内のstart.batを実行してサーバーを起動してください。');
+                    
+                    // 自動更新が有効な場合、定期チェックを開始
+                    if (config.autoUpdate) {
+                        try {
+                            await window.electronAPI.enableAutoUpdateCheck(config.savePath, 60); // 60分間隔
+                            console.log('自動更新チェックを開始しました');
+                            
+                            // 更新通知のリスナーを設定
+                            window.electronAPI.onUpdateAvailable((updateInfo) => {
+                                showSuccess(`${updateInfo.serverName} の新しいバージョン ${updateInfo.latestVersion} が利用可能です！`);
+                            });
+                        } catch (error) {
+                            console.warn('自動更新チェックの設定に失敗しました:', error);
+                        }
+                    }
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                showError(error.message);
+                updateProgress(0, 'エラーが発生しました');
+            } finally {
+                isCreating = false;
+                createBtn.disabled = false;
+                createBtn.textContent = '🚀 サーバーを作成';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        // バージョン変更時のJavaチェック
+        versionSelect.addEventListener('change', () => {
+            if (versionSelect.value) {
+                checkJavaCompatibility();
+                saveSettings();
+            }
+        });
+
+        // 入力変更時の設定保存
+        ['serverName', 'minMemory', 'maxMemory', 'autoDownload', 'autoEula', 'autoUpdate'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', saveSettings);
+                if (element.type !== 'checkbox') {
+                    element.addEventListener('input', saveSettings);
+                }
+            }
+        });
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // バージョン表示
+            try {
+                const version = await window.electronAPI.getAppVersion();
+                appVersion.textContent = `v${version}`;
+            } catch (error) {
+                console.error('バージョン取得エラー:', error);
+                appVersion.textContent = 'v1.0.0';
+            }
+            
+            loadSettings();
+            loadVersions();
+            
+            // デフォルトの保存先を設定
+            if (!savePath.value && window.electronAPI) {
+                window.electronAPI.getDefaultPath().then(defaultPath => {
+                    savePath.value = defaultPath;
+                    saveSettings();
+                    // 既存サーバーをチェック
+                    checkExistingServer(defaultPath);
+                });
+            } else if (savePath.value) {
+                // 既存の保存先パスがある場合もチェック
+                checkExistingServer(savePath.value);
+            }
+            
+            checkJavaCompatibility();
+            
+            // アップデート関連のイベントリスナーを設定
+            setupUpdateListeners();
+        });
+    </script>
+</body>
+</html>
+            
