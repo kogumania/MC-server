@@ -1,0 +1,134 @@
+{
+  "name": "mc-server",
+  "version": "1.0.0",
+  "description": "Minecraftサーバーを簡単に作成できるElectronアプリケーション",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --publish=always",
+    "build:mac": "electron-builder --mac --publish=always",
+    "build:linux": "electron-builder --linux --publish=always",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --publish=never",
+    "release": "electron-builder --publish=always"
+  },
+  "keywords": [
+    "minecraft",
+    "server",
+    "electron",
+    "gaming",
+    "vanilla",
+    "paper",
+    "spigot",
+    "fabric",
+    "forge",
+    "neoforge"
+  ],
+  "author": {
+    "name": "kogumania",
+    "email": "your-email@example.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
+  "build": {
+    "appId": "com.kogumania.mc-server",
+    "productName": "MC Server Creator",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "auto-updater.js",
+      "assets/**/*",
+      "node_modules/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "kogumania",
+        "repo": "MC-server",
+        "releaseType": "release"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "kogumania"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.games"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Game"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MC Server Creator",
+      "allowElevation": true
+    },
+    "dmg": {
+      "title": "MC Server Creator",
+      "icon": "assets/icon.icns",
+      "background": "assets/dmg-background.png",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  },
+  "homepage": "https://github.com/kogumania/MC-server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kogumania/MC-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kogumania/MC-server/issues"
+  }
+}
