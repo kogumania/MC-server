@@ -7,9 +7,9 @@
     "start": "electron .",
     "dev": "NODE_ENV=development electron .",
     "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
+    "build:win": "electron-builder --win --publish=always",
+    "build:mac": "electron-builder --mac --publish=always",
+    "build:linux": "electron-builder --linux --publish=always",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --publish=never",
     "release": "electron-builder --publish=always"
@@ -69,7 +69,6 @@
           ]
         }
       ],
-      "icon": "assets/icon.ico",
       "publisherName": "kogumania"
     },
     "mac": {
@@ -82,7 +81,6 @@
           ]
         }
       ],
-      "icon": "assets/icon.icns",
       "category": "public.app-category.games"
     },
     "linux": {
@@ -94,7 +92,6 @@
           ]
         }
       ],
-      "icon": "assets/icon.png",
       "category": "Game"
     },
     "nsis": {
@@ -107,7 +104,6 @@
     },
     "dmg": {
       "title": "MC Server Creator",
-      "icon": "assets/icon.icns",
       "contents": [
         {
           "x": 130,
