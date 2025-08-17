@@ -22,8 +22,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          # package-lock.json がない場合はキャッシュを無効化
-          # cache: 'npm'
+          # キャッシュを完全に無効化（package-lock.jsonがないため）
           
       - name: Install Dependencies
         run: |
