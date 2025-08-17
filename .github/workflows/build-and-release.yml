@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-      # fail-fast を false にして、一つのOSが失敗しても他のOSのビルドを継続
       fail-fast: false
     
     steps:
@@ -26,16 +25,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          # キャッシュを完全に無効化（package-lock.jsonがないため）
           
       - name: Install Dependencies
         run: |
-          # package-lock.json が存在する場合は npm ci、存在しない場合は npm install
           if [ -f "package-lock.json" ]; then
             npm ci
           else
             npm install
           fi
+        shell: bash
+        
+      # CHANGELOG.mdを作成（リリースノート用）
+      - name: Create CHANGELOG.md
+        run: |
+          echo "# Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## [${{ github.ref_name }}] - $(date '+%Y-%m-%d')" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Added" >> CHANGELOG.md
+          echo "- New features and improvements" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Fixed" >> CHANGELOG.md
+          echo "- Bug fixes" >> CHANGELOG.md
         shell: bash
         
       - name: Build Application (Linux)
@@ -56,26 +67,22 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Upload Build Artifacts (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      # デバッグ情報: distフォルダの内容を確認
+      - name: List dist folder contents
+        run: |
+          echo "Contents of dist folder:"
+          ls -la dist/ || echo "dist folder not found"
+          echo "Looking for YAML files:"
+          find dist/ -name "*.yml" -o -name "*.yaml" 2>/dev/null || echo "No YAML files found"
+        shell: bash
+        
+      - name: Upload Build Artifacts (All files)
         uses: actions/upload-artifact@v4
         with:
-          name: linux-build
-          path: dist/*.AppImage
-          if-no-files-found: warn
-          
-      - name: Upload Build Artifacts (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-build
-          path: dist/*.exe
-          if-no-files-found: warn
-          
-      - name: Upload Build Artifacts (macOS)
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build
-          path: dist/*.dmg
+          name: build-${{ matrix.os }}
+          path: |
+            dist/*
+            !dist/mac
+            !dist/win-unpacked
+            !dist/linux-unpacked
           if-no-files-found: warn
