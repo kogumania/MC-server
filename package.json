@@ -7,9 +7,9 @@
     "start": "electron .",
     "dev": "NODE_ENV=development electron .",
     "build": "electron-builder",
-    "build:win": "electron-builder --win --publish=always",
-    "build:mac": "electron-builder --mac --publish=always",
-    "build:linux": "electron-builder --linux --publish=always",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --publish=never",
     "release": "electron-builder --publish=always"
@@ -108,7 +108,6 @@
     "dmg": {
       "title": "MC Server Creator",
       "icon": "assets/icon.icns",
-      "background": "assets/dmg-background.png",
       "contents": [
         {
           "x": 130,
